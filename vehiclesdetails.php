@@ -85,6 +85,21 @@
         .vehicle-item.visible {
             display: block;
         }
+        .recommended-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 5;
+        }
+        .imgBx {
+            position: relative;
+        }
     </style>
 </head>
 
@@ -115,6 +130,26 @@
     $sql2 .= $sort;
     
     $vehicles = mysqli_query($con, $sql2);
+    
+    // Get user's booking history for recommendations (with error handling)
+    $bookingHistory = [];
+    $userId = isset($rows['USER_ID']) ? $rows['USER_ID'] : null;
+    
+    if ($userId) {
+        // Check if bookings table exists
+        $tableCheck = mysqli_query($con, "SHOW TABLES LIKE 'bookings'");
+        if(mysqli_num_rows($tableCheck) > 0) {
+            $historyQuery = "SELECT v.VEHICLE_TYPE, v.FUEL_TYPE FROM bookings b 
+                             JOIN vehicles v ON b.VEHICLE_ID = v.VEHICLE_ID 
+                             WHERE b.USER_ID = '$userId'";
+            $historyResult = mysqli_query($con, $historyQuery);
+            if($historyResult) {
+                while($history = mysqli_fetch_assoc($historyResult)) {
+                    $bookingHistory[] = $history;
+                }
+            }
+        }
+    }
 ?>
 
 <div class="cd">
@@ -158,14 +193,77 @@
     <h1 class="overview">OUR VEHICLE OVERVIEW</h1>
     <ul class="de">
     <?php
+        // Store vehicle data for recommendation algorithm
+        $vehicleData = [];
         while($result = mysqli_fetch_array($vehicles)) {
             $res = $result['VEHICLE_ID'];
+            $vehicleData[] = $result;
+        }
+        
+        // Recommendation Algorithm
+        $recommendedVehicles = [];
+        if (!empty($bookingHistory)) {
+            // Calculate recommendation scores for each vehicle
+            $scoredVehicles = [];
+            foreach ($vehicleData as $vehicle) {
+                $score = 0;
+                
+                // Preference matching based on booking history
+                foreach ($bookingHistory as $history) {
+                    if (isset($history['VEHICLE_TYPE']) && 
+                        strtolower($history['VEHICLE_TYPE']) === strtolower($vehicle['VEHICLE_TYPE'])) {
+                        $score += 10;
+                    }
+                    if (isset($history['FUEL_TYPE']) && 
+                        strtolower($history['FUEL_TYPE']) === strtolower($vehicle['FUEL_TYPE'])) {
+                        $score += 5;
+                    }
+                }
+                
+                // Price preference (lower prices get higher scores for budget-conscious users)
+                $avgPrice = array_sum(array_column($vehicleData, 'PRICE')) / count($vehicleData);
+                if ($vehicle['PRICE'] < $avgPrice) {
+                    $score += 3;
+                }
+                
+                $scoredVehicles[] = ['vehicle' => $vehicle, 'score' => $score];
+            }
+            
+            // Sort by score (descending) and take top 3
+            usort($scoredVehicles, function($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+            
+            $recommendedVehicles = array_slice($scoredVehicles, 0, 3);
+        } else {
+            // For new users, recommend popular vehicles (higher priced ones as proxy)
+            $sortedVehicles = $vehicleData;
+            usort($sortedVehicles, function($a, $b) {
+                return $b['PRICE'] - $a['PRICE'];
+            });
+            $recommendedVehicles = array_slice($sortedVehicles, 0, 3);
+            // Convert to same format as scored vehicles
+            $recommendedVehicles = array_map(function($v) {
+                return ['vehicle' => $v, 'score' => 0];
+            }, $recommendedVehicles);
+        }
+        
+        // Extract recommended vehicle IDs
+        $recommendedIds = array_column(array_column($recommendedVehicles, 'vehicle'), 'VEHICLE_ID');
+        
+        // Display all vehicles
+        foreach ($vehicleData as $result) {
+            $res = $result['VEHICLE_ID'];
+            $isRecommended = in_array($result['VEHICLE_ID'], $recommendedIds);
     ?>    
     <li class="vehicle-item" data-name="<?php echo htmlspecialchars(strtolower($result['VEHICLE_NAME'])); ?>" data-type="<?php echo htmlspecialchars(strtolower($result['VEHICLE_TYPE'])); ?>">
         <form method="POST">
             <div class="box">
                 <div class="imgBx">
                     <img src="images/<?php echo $result['VEHICLE_IMG']?>">
+                    <?php if ($isRecommended): ?>
+                        <div class="recommended-badge">RECOMMENDED</div>
+                    <?php endif; ?>
                 </div>
                 <div class="content">
                     <h1><?php echo $result['VEHICLE_NAME']?></h1>
@@ -195,7 +293,7 @@
     </div>
 </footer>
 
-<script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+<script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js  "></script>
 <script>
     let selectedType = '';
 
