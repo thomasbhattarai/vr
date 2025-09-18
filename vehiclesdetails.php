@@ -159,6 +159,7 @@
         </div>
         <div class="menu">
             <ul>
+                
                 <li><p class="phello"><a id="pname"><?php echo $rows['FNAME']." ".$rows['LNAME']?></a></p></li>
                 <li><a id="stat" href="bookinstatus.php">BOOKING STATUS</a></li>
                 <li><button class="nn"><a href="index.php">LOGOUT</a></button></li>

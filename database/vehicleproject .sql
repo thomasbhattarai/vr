@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 16, 2025 at 11:24 AM
+-- Generation Time: Sep 18, 2025 at 02:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,21 +56,22 @@ CREATE TABLE `booking` (
   `DESTINATION` varchar(255) NOT NULL,
   `RETURN_DATE` date NOT NULL,
   `PRICE` int(11) NOT NULL,
-  `BOOK_STATUS` varchar(255) NOT NULL DEFAULT 'UNDER PROCESSING'
+  `BOOK_STATUS` varchar(255) NOT NULL DEFAULT 'UNDER PROCESSING',
+  `FINE` decimal(10,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `booking`
 --
 
-INSERT INTO `booking` (`BOOK_ID`, `VEHICLE_ID`, `EMAIL`, `BOOK_PLACE`, `BOOK_DATE`, `DURATION`, `PHONE_NUMBER`, `DESTINATION`, `RETURN_DATE`, `PRICE`, `BOOK_STATUS`) VALUES
-(72, 2, 'ram@gmail.com', 'kathmandu', '2024-11-11', 3, 9841502866, 'bhaktapur', '2024-11-28', 21000, 'RETURNED'),
-(73, 3, 'ram@gmail.com', 'kathmandu', '2024-11-11', 6, 9841502866, 'bhaktapur', '2024-11-27', 18000, 'APPROVED'),
-(74, 2, 'ram@gmail.com', 'kathmandu', '2024-11-11', 1, 9841502866, 'bhaktapur', '2024-11-21', 7000, 'UNDER PROCESSING'),
-(75, 23, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-30', 12, 9860741579, 'Bhaktapur', '2025-10-12', 18360, 'Canceled'),
-(78, 23, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-23', 18, 9860741579, 'Bhaktapur', '2025-10-11', 27540, 'Canceled'),
-(79, 23, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-17', 25, 9860741579, 'Bhaktapur', '2025-10-12', 38250, 'Canceled'),
-(80, 23, 'thomasbhattarai@gmail.com', 'lalitpur', '2025-09-30', 12, 9860741579, 'Bhaktapur', '2025-10-12', 18360, 'Canceled');
+INSERT INTO `booking` (`BOOK_ID`, `VEHICLE_ID`, `EMAIL`, `BOOK_PLACE`, `BOOK_DATE`, `DURATION`, `PHONE_NUMBER`, `DESTINATION`, `RETURN_DATE`, `PRICE`, `BOOK_STATUS`, `FINE`) VALUES
+(82, 2, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-17', 15, 9860741579, 'Bhaktapur', '2025-10-02', 94500, 'Canceled', 0.00),
+(83, 2, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-30', 11, 9860741579, 'Bhaktapur', '2025-10-11', 69300, 'UNDER PROCESSING', 0.00),
+(84, 2, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-24', 3, 9860741579, 'Bhaktapur', '2025-09-27', 19950, 'UNDER PROCESSING', 0.00),
+(85, 22, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-17', 10, 9860741579, 'Bhaktapur', '2025-09-27', 1800, 'UNDER PROCESSING', 0.00),
+(86, 25, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-16', 3, 9860741579, 'Bhaktapur', '2025-09-19', 4845, 'UNDER PROCESSING', 0.00),
+(87, 25, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-16', 3, 9860741579, 'Bhaktapur', '2025-09-19', 4845, 'UNDER PROCESSING', 0.00),
+(88, 26, 'thomasbhattarai@gmail.com', 'Bhaktapur', '2025-09-18', 10, 9860741579, 'Bhaktapur', '2025-09-28', 7020, 'UNDER PROCESSING', 0.00);
 
 -- --------------------------------------------------------
 
@@ -111,12 +112,7 @@ CREATE TABLE `payment` (
 --
 
 INSERT INTO `payment` (`PAY_ID`, `BOOK_ID`, `CARD_NO`, `EXP_DATE`, `CVV`, `PRICE`) VALUES
-(26, 72, '123456789', '1-2', 555, 21000),
-(27, 73, '1555555', '3', 999, 18000),
-(28, 74, '1234567890123455', '11111', 222, 7000),
-(31, 78, '1111-11111-11111', '11/11', 111, 27540),
-(32, 79, '7777-7777-7777-7', '07/77', 777, 38250),
-(33, 80, '1111-11111-11111', '11/11', 111, 18360);
+(35, 82, '1111-11111-11111', '11/11', 111, 94500);
 
 -- --------------------------------------------------------
 
@@ -167,7 +163,6 @@ CREATE TABLE `vehicles` (
 INSERT INTO `vehicles` (`VEHICLE_ID`, `VEHICLE_NAME`, `VEHICLE_TYPE`, `FUEL_TYPE`, `CAPACITY`, `PRICE`, `VEHICLE_IMG`, `AVAILABLE`) VALUES
 (2, 'LAMBORGINI', 'Car', 'DEISEL', 6, 7000, 'lamborghini.webp', 'Y'),
 (3, 'PORSCHE', 'Car', 'GAS', 4, 3000, 'porsche.jpg', 'N'),
-(20, 'SWIFT', 'Car', 'DEISEL', 22, 1000, 'IMG-6239c94ea8a4a0.51789849.jpg', 'Y'),
 (21, 'Harley Davidson', 'Motorbike', 'Petrol', 2, 500, 'harley_davidson.jpg', 'Y'),
 (22, 'Yamaha R15', 'Motorbike', 'Petrol', 2, 200, 'yamaha_r15.jpg', 'Y'),
 (23, 'Harley', 'Bike', 'Petrol', 2, 1700, 'IMG-68c915a9403936.26450202.jpg', 'Y'),
@@ -227,7 +222,7 @@ ALTER TABLE `vehicles`
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
-  MODIFY `BOOK_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `BOOK_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT for table `feedback`
@@ -239,7 +234,7 @@ ALTER TABLE `feedback`
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `PAY_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `PAY_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `vehicles`
